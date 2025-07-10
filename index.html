@@ -1,56 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-  <!-- 
-      This is an HTML comment
-      You can write text in a comment and the content won't be visible in the page
-    -->
-
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="https://glitch.com/favicon.ico" />
-
-  <!--
-      This is the page head - it contains info the browser uses
-      Like the title, which appears on the browser tab but not inside the page
-      Further down you'll see the content that displays in the page
-    -->
-  <title>Hello World!</title>
-
-  <!-- The website stylesheet -->
-  <link rel="stylesheet" href="/style.css" />
-
-  <!-- The website JavaScript file -->
-  <script src="/script.js" defer></script>
+  <title>音视界演示平台</title>
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #result {
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      padding: 15px;
+    }
+  </style>
 </head>
-
 <body>
-  <!--
-      The body includes the content you see in the page
-      Each element is defined using tags, like this <div></div>
-      The attributes like class="wrapper" let us style elements in the CSS
-    -->
-  <div class="wrapper">
-    <div class="content" role="main">
-      <h1 class="title">Oh hi website!</h1>
-      <img src="/cool-website.svg" class="illustration" alt="cool website" />
-      <div class="instructions">
-        <p>
-          Fork <a href="https://github.com/glitchdotcom/website-to-compute">this project</a> and open it in a GitHub Codespace.
-        </p>
-        <p> Follow the steps in the README to deploy your new website to Fastly in a few steps!
-        </p>
-
-      </div>
-
-      <footer class="footer">
-        <div>
-          <a class="remix" href="https://github.com/glitchdotcom/website-to-compute">🚧 Get your own site</a>
-        </div>
-      </footer>
-    </div>
+  <div class="container">
+    <h1>音视界音乐卡片生成器</h1>
+    <input type="file" id="musicFile" accept="audio/*">
+    <button onclick="processSong()">生成视觉卡片</button>
+    <div id="result"></div>
   </div>
-</body>
 
+  <script>
+    async function processSong() {
+      const file = document.getElementById('musicFile').files[0];
+      if (!file) return alert('请选择歌曲文件');
+      
+      // 显示加载状态
+      document.getElementById('result').innerHTML = '生成中...';
+      
+      // 调用 Coze API
+      const response = await fetch(
+        'https://api.coze.com/open_api/v2/workflow/run?workflow_id=RootUser_2108787781', 
+        {
+          method: 'POST',
+          body: JSON.stringify({ audio: await file.arrayBuffer() }),
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+      
+      const data = await response.json();
+      // 显示结果
+      document.getElementById('result').innerHTML = `
+        <video src="${data.video_url}" controls></video>
+        <a href="${data.video_url}" download>下载卡片</a>
+      `;
+    }
+  </script>
+</body>
 </html>
